@@ -25,7 +25,7 @@ class MRUCache(BaseCaching):
         """ Add an item in the cache
         """
         if key is not None and item is not None:
-            keyOut = self._check(key)
+            keyOut = self._balance(key)
             with self.__rlock:
                 self.cache_data.update({key: item})
             if keyOut is not None:
@@ -37,10 +37,12 @@ class MRUCache(BaseCaching):
         with self.__rlock:
             value = self.cache_data.get(key, None)
             if key in self.__keys:
-                self._check(key)
+                self._balance(key)
         return value
 
-    def _check(self, keyIn):
+    def _balance(self, keyIn):
+        """ Removes the earliest item from the cache at MAX size
+        """
         keyOut = None
         with self.__rlock:
             keysLength = len(self.__keys)
