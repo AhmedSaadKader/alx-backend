@@ -1,56 +1,39 @@
 #!/usr/bin/python3
-"""MRU Cache Replacement Implementation Class
+"""MRU Cache
 """
-from threading import RLock
+from collections import OrderedDict
 
 BaseCaching = __import__('base_caching').BaseCaching
 
 
 class MRUCache(BaseCaching):
-    """
-    An implementation of MRU(Most Recently Used) Cache
-
-    Attributes:
-        __keys (list): Stores cache keys from least to most accessed
-        __rlock (RLock): Lock accessed resources to prevent race condition
-    """
+    """MRU Cache"""
     def __init__(self):
-        """ Instantiation method, sets instance attributes
-        """
+        """Initialize the class"""
         super().__init__()
-        self.__keys = []
-        self.__rlock = RLock()
+        self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """ Add an item in the cache
-        """
-        if key is not None and item is not None:
-            keyOut = self._balance(key)
-            with self.__rlock:
-                self.cache_data.update({key: item})
-            if keyOut is not None:
-                print('DISCARD: {}'.format(keyOut))
+        """Add an item in the cache using MRU algorithm"""
+        if key is None or item is None:
+            return
+
+        if key in self.cache_data:
+            # Update the existing key and move it to the end (most recently used)
+            self.cache_data.move_to_end(key)
+        else:
+            if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
+                # MRU: remove the most recently used item
+                last_key, _ = self.cache_data.popitem(last=True)
+                print(f"DISCARD: {last_key}")
+
+        # Add/Update the key-value pair in the cache
+        self.cache_data[key] = item
 
     def get(self, key):
-        """ Get an item by key
-        """
-        with self.__rlock:
-            value = self.cache_data.get(key, None)
-            if key in self.__keys:
-                self._balance(key)
-        return value
-
-    def _balance(self, keyIn):
-        """ Removes the earliest item from the cache at MAX size
-        """
-        keyOut = None
-        with self.__rlock:
-            keysLength = len(self.__keys)
-            if keyIn not in self.__keys:
-                if len(self.cache_data) == BaseCaching.MAX_ITEMS:
-                    keyOut = self.__keys.pop(keysLength - 1)
-                    self.cache_data.pop(keyOut)
-            else:
-                self.__keys.remove(keyIn)
-            self.__keys.insert(keysLength, keyIn)
-        return keyOut
+        """Get an item by key"""
+        if key is None or key not in self.cache_data:
+            return None
+        # Move the key to the end to mark it as recently used
+        self.cache_data.move_to_end(key)
+        return self.cache_data[key]
