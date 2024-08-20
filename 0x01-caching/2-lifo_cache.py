@@ -20,8 +20,9 @@ class LIFOCache(BaseCaching):
         else:
             if len(self.cache_data) >= BaseCaching.MAX_ITEMS:
                 if self.last_key:
-                    # LIFO: remove the last item added to the cache
                     del self.cache_data[self.last_key]
+                    print(f"DISCARD: {self.last_key}")
+
 
             # Add the new key
             self.cache_data[key] = item
