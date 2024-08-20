@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 """MRU Cache"""
 from threading import RLock
 BaseCaching = __import__('base_caching').BaseCaching
