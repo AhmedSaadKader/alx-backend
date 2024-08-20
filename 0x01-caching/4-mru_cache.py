@@ -1,13 +1,12 @@
 #!/usr/bin/python3
-"""LRU Cache"""
+"""MRU Cache"""
 from threading import RLock
-
 BaseCaching = __import__('base_caching').BaseCaching
 
 
-class LRUCache(BaseCaching):
+class MRUCache(BaseCaching):
     """
-    An implementation of LRU(Last Recently Used) Cache
+    An implementation of MRU(Most Recently Used) Cache
     """
     def __init__(self):
         super().__init__()
@@ -15,6 +14,8 @@ class LRUCache(BaseCaching):
         self.__rlock = RLock()
 
     def put(self, key, item):
+        """ Add an item in the cache
+        """
         if key is not None and item is not None:
             keyOut = self._check(key)
             with self.__rlock:
@@ -37,7 +38,7 @@ class LRUCache(BaseCaching):
             keysLength = len(self.__keys)
             if keyIn not in self.__keys:
                 if len(self.cache_data) == BaseCaching.MAX_ITEMS:
-                    keyOut = self.__keys.pop(0)
+                    keyOut = self.__keys.pop(keysLength - 1)
                     self.cache_data.pop(keyOut)
             else:
                 self.__keys.remove(keyIn)

@@ -23,7 +23,6 @@ class LIFOCache(BaseCaching):
                     del self.cache_data[self.last_key]
                     print(f"DISCARD: {self.last_key}")
 
-
             # Add the new key
             self.cache_data[key] = item
 
